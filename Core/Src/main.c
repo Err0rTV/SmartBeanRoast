@@ -78,10 +78,16 @@ SDRAM_HandleTypeDef hsdram1;
 osThreadId_t GUI_TaskHandle;
 const osThreadAttr_t GUI_Task_attributes = {
   .name = "GUI_Task",
-  .stack_size = 8192 * 4,
+  .stack_size = 8192 * 2,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
+osThreadId_t App_TaskHandle;
+const osThreadAttr_t App_Task_attributes = {
+  .name = "App_Task",
+  .stack_size = 8192 * 1,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 
 /* USER CODE END PV */
 
@@ -97,6 +103,10 @@ static void MX_DMA2D_Init(void);
 void TouchGFX_Task(void *argument);
 
 /* USER CODE BEGIN PFP */
+void App_Task(void *argument);
+
+osMessageQueueId_t TempQueue;
+
 static void BSP_SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_CommandTypeDef *Command);
 
 
@@ -171,7 +181,7 @@ int main(void)
   MX_DMA2D_Init();
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
-
+  TempQueue = osMessageQueueNew(1, sizeof(float), NULL);
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -199,6 +209,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  App_TaskHandle = osThreadNew(App_Task, NULL, &App_Task_attributes);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -564,6 +575,9 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : PC2 */
   GPIO_InitStruct.Pin = GPIO_PIN_2;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -577,6 +591,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PG13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
 }
 
@@ -902,6 +923,21 @@ uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize)
 void LCD_Delay(uint32_t Delay)
 {
   HAL_Delay(Delay);
+}
+
+void App_Task(void *argument)
+{
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
+	float temp = 0;
+  for(;;)
+  {
+    osDelay(500);
+    HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
+    int status = osMessageQueuePut(TempQueue, &temp, 0, 0);
+    temp += 1;
+  }
+  /* USER CODE END 5 */
 }
 
 /* USER CODE END 4 */

@@ -10,6 +10,7 @@ KEEP extern const uint32_t indicesGb[] TEXT_LOCATION_FLASH_ATTRIBUTE;
 TEXT_LOCATION_FLASH_PRAGMA
 KEEP extern const uint32_t indicesGb[] TEXT_LOCATION_FLASH_ATTRIBUTE =
 {
-    0, // T_SingleUseId1
-    5  // T_SingleUseId2
+    12, // T_SingleUseId1
+    0, // T_ResourceId1
+    17  // T_SingleUseId2
 };

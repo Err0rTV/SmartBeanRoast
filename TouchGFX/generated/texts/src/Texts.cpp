@@ -61,8 +61,9 @@ extern const touchgfx::TypedText::TypedTextData* const typedTextDatabaseArray[];
 TEXT_LOCATION_FLASH_PRAGMA
 KEEP extern const touchgfx::Unicode::UnicodeChar texts_all_languages[] TEXT_LOCATION_FLASH_ATTRIBUTE =
 {
-    0x2, 0x20, 0xb0, 0x43, 0x0, // @0 "<> ?C"
-    0x6e, 0x61, 0x0 // @5 "na"
+    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x2e, 0x0, // @0 "0123456789."
+    0x2, 0x20, 0xb0, 0x43, 0x0, // @12 "<> ?C"
+    0x6e, 0x61, 0x0 // @17 "na"
 };
 TEXT_LOCATION_FLASH_PRAGMA
 KEEP extern uint32_t const indicesGb[] TEXT_LOCATION_FLASH_ATTRIBUTE;

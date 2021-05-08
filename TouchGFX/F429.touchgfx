@@ -18,7 +18,7 @@
             "Wildcard1": {
               "TextId": "SingleUseId2",
               "UseBuffer": true,
-              "BufferSize": 10
+              "BufferSize": 12
             },
             "Name": "textArea1",
             "X": 64,
@@ -44,6 +44,10 @@
       {
         "TextEntryId": "SingleUseId1",
         "IsResource": false
+      },
+      {
+        "TextEntryId": "ResourceId1",
+        "IsResource": true
       },
       {
         "TextEntryId": "SingleUseId2",
@@ -95,7 +99,8 @@
     "LandscapeSkinY": 0,
     "PortraitSkinX": 0,
     "PortraitSkinY": 0,
-    "DisplayOrientation": "Portrait"
+    "DisplayOrientation": "Portrait",
+    "Family": "STM32F4"
   },
   "Version": "4.16.1",
   "CreatedBy": "4.16.1"
