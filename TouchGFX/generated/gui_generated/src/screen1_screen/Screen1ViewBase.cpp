@@ -11,9 +11,12 @@ Screen1ViewBase::Screen1ViewBase()
     __background.setPosition(0, 0, 240, 320);
     __background.setColor(touchgfx::Color::getColorFrom24BitRGB(0, 0, 0));
 
-    textArea1.setXY(74, 148);
-    textArea1.setColor(touchgfx::Color::getColorFrom24BitRGB(122, 122, 122));
+    textArea1.setXY(64, 136);
+    textArea1.setColor(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
     textArea1.setLinespacing(0);
+    Unicode::snprintf(textArea1Buffer, TEXTAREA1_SIZE, "%s", touchgfx::TypedText(T_SINGLEUSEID2).getText());
+    textArea1.setWildcard(textArea1Buffer);
+    textArea1.resizeToCurrentText();
     textArea1.setTypedText(touchgfx::TypedText(T_SINGLEUSEID1));
 
     add(__background);
