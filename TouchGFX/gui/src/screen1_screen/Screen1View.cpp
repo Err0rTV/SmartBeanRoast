@@ -24,7 +24,6 @@ void Screen1View::tearDownScreen()
 void Screen1View::updateTemp(float temp)
 {
     Unicode::snprintfFloat(textArea1Buffer, TEXTAREA1_SIZE, "%.1f", temp);
-    textArea1.resizeToCurrentTextWithAlignment();
     textArea1.invalidate();
 }
 
