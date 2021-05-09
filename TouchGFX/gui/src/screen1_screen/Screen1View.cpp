@@ -21,3 +21,13 @@ void Screen1View::updateTemp(float temp)
     textArea1.resizeToCurrentTextWithAlignment();
     textArea1.invalidate();
 }
+
+void Screen1View::onButtonStart()
+{
+    // Override and implement this function in Screen1
+}
+
+void Screen1View::onButtonDevelop()
+{
+    // Override and implement this function in Screen1
+}

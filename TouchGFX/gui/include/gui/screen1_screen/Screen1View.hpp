@@ -12,6 +12,8 @@ public:
     virtual void setupScreen();
     virtual void tearDownScreen();
 
+    void onButtonStart();
+    void onButtonDevelop();
     void updateTemp(float temp);
 protected:
 };

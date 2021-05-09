@@ -4,26 +4,61 @@
 #include <gui_generated/screen1_screen/Screen1ViewBase.hpp>
 #include <touchgfx/Color.hpp>
 #include <texts/TextKeysAndLanguages.hpp>
+#include "BitmapDatabase.hpp"
 
-Screen1ViewBase::Screen1ViewBase()
+Screen1ViewBase::Screen1ViewBase() :
+    buttonCallback(this, &Screen1ViewBase::buttonCallbackHandler)
 {
 
     __background.setPosition(0, 0, 240, 320);
     __background.setColor(touchgfx::Color::getColorFrom24BitRGB(0, 0, 0));
 
-    textArea1.setXY(64, 136);
+    textArea1.setPosition(12, 27, 216, 49);
     textArea1.setColor(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
     textArea1.setLinespacing(0);
     Unicode::snprintf(textArea1Buffer, TEXTAREA1_SIZE, "%s", touchgfx::TypedText(T_SINGLEUSEID2).getText());
     textArea1.setWildcard(textArea1Buffer);
-    textArea1.resizeToCurrentText();
     textArea1.setTypedText(touchgfx::TypedText(T_SINGLEUSEID1));
+
+    buttonStart.setXY(35, 116);
+    buttonStart.setBitmaps(touchgfx::Bitmap(BITMAP_BLUE_BUTTONS_ROUND_EDGE_SMALL_ID), touchgfx::Bitmap(BITMAP_BLUE_BUTTONS_ROUND_EDGE_SMALL_PRESSED_ID));
+    buttonStart.setLabelText(touchgfx::TypedText(T_SINGLEUSEID3));
+    buttonStart.setLabelColor(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
+    buttonStart.setLabelColorPressed(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
+    buttonStart.setAction(buttonCallback);
+
+    buttonDevelop.setXY(35, 210);
+    buttonDevelop.setBitmaps(touchgfx::Bitmap(BITMAP_BLUE_BUTTONS_ROUND_EDGE_SMALL_ID), touchgfx::Bitmap(BITMAP_BLUE_BUTTONS_ROUND_EDGE_SMALL_PRESSED_ID));
+    buttonDevelop.setLabelText(touchgfx::TypedText(T_SINGLEUSEID4));
+    buttonDevelop.setLabelColor(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
+    buttonDevelop.setLabelColorPressed(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
+    buttonDevelop.setAction(buttonCallback);
 
     add(__background);
     add(textArea1);
+    add(buttonStart);
+    add(buttonDevelop);
 }
 
 void Screen1ViewBase::setupScreen()
 {
 
+}
+
+void Screen1ViewBase::buttonCallbackHandler(const touchgfx::AbstractButton& src)
+{
+    if (&src == &buttonStart)
+    {
+        //ButtonStart
+        //When buttonStart clicked call virtual function
+        //Call onButtonStart
+        onButtonStart();
+    }
+    else if (&src == &buttonDevelop)
+    {
+        //ButtonDevelop
+        //When buttonDevelop clicked call virtual function
+        //Call onButtonDevelop
+        onButtonDevelop();
+    }
 }
