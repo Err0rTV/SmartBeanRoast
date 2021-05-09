@@ -70,6 +70,7 @@ I2C_HandleTypeDef hi2c3;
 
 LTDC_HandleTypeDef hltdc;
 
+SPI_HandleTypeDef hspi4;
 SPI_HandleTypeDef hspi5;
 
 SDRAM_HandleTypeDef hsdram1;
@@ -100,6 +101,7 @@ static void MX_SPI5_Init(void);
 static void MX_FMC_Init(void);
 static void MX_LTDC_Init(void);
 static void MX_DMA2D_Init(void);
+static void MX_SPI4_Init(void);
 void TouchGFX_Task(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -179,9 +181,11 @@ int main(void)
   MX_FMC_Init();
   MX_LTDC_Init();
   MX_DMA2D_Init();
+  MX_SPI4_Init();
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
   TempQueue = osMessageQueueNew(1, sizeof(float), NULL);
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -460,6 +464,44 @@ static void MX_LTDC_Init(void)
 }
 
 /**
+  * @brief SPI4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI4_Init(void)
+{
+
+  /* USER CODE BEGIN SPI4_Init 0 */
+
+  /* USER CODE END SPI4_Init 0 */
+
+  /* USER CODE BEGIN SPI4_Init 1 */
+
+  /* USER CODE END SPI4_Init 1 */
+  /* SPI4 parameter configuration*/
+  hspi4.Instance = SPI4;
+  hspi4.Init.Mode = SPI_MODE_MASTER;
+  hspi4.Init.Direction = SPI_DIRECTION_2LINES_RXONLY;
+  hspi4.Init.DataSize = SPI_DATASIZE_16BIT;
+  hspi4.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi4.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi4.Init.NSS = SPI_NSS_SOFT;
+  hspi4.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+  hspi4.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi4.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi4.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi4.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI4_Init 2 */
+
+  /* USER CODE END SPI4_Init 2 */
+
+}
+
+/**
   * @brief SPI5 Initialization Function
   * @param None
   * @retval None
@@ -560,14 +602,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
-  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
@@ -576,7 +621,14 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_2|GPIO_PIN_13, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PE4 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PC2 */
   GPIO_InitStruct.Pin = GPIO_PIN_2;
@@ -592,8 +644,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PG13 */
-  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  /*Configure GPIO pins : PG2 PG13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_13;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -927,17 +979,47 @@ void LCD_Delay(uint32_t Delay)
 
 void App_Task(void *argument)
 {
-  /* USER CODE BEGIN 5 */
   /* Infinite loop */
 	float temp = 0;
   for(;;)
   {
     osDelay(500);
     HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
-    int status = osMessageQueuePut(TempQueue, &temp, 0, 0);
-    temp += 1;
+
+    uint16_t readvalue;
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
+    osDelay(1);
+    HAL_StatusTypeDef hal_status = HAL_SPI_Receive(&hspi4, (uint8_t*) &readvalue, 1, 10);
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
+    readvalue = readvalue >> 3;
+
+    /* Check the communication status */
+    if(hal_status != HAL_OK)
+    {
+      /* Re-Initialize the BUS */
+    	temp = -1;
+//    	int status = osMessageQueuePut(TempQueue, &temp, 0, 0);
+    }
+    else
+    {
+    	temp = readvalue * 0.25;
+    	int status = osMessageQueuePut(TempQueue, &temp, 0, 0);
+    }
+
+    uint32_t flag = osEventFlagsWait(msgFlags, MSG_BUTTON_START, osFlagsWaitAny, 0);
+    if(flag != osFlagsErrorResource)
+    {
+    	uint32_t f = flag;
+    	HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_2);
+    }
+
+    flag = osEventFlagsWait(msgFlags, MSG_BUTTON_DEVELOP, osFlagsWaitAny, 0);
+    if(flag != osFlagsErrorResource)
+    {
+    	uint32_t f = flag;
+    }
+    //temp += 1;
   }
-  /* USER CODE END 5 */
 }
 
 /* USER CODE END 4 */
