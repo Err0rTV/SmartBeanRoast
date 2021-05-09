@@ -80,7 +80,7 @@ SDRAM_HandleTypeDef hsdram1;
 osThreadId_t GUI_TaskHandle;
 const osThreadAttr_t GUI_Task_attributes = {
   .name = "GUI_Task",
-  .stack_size = 8192 * 2,
+  .stack_size = 8192 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
