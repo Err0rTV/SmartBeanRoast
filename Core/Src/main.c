@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Components/ili9341/ili9341.h"
+#include "common.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -108,6 +109,7 @@ void TouchGFX_Task(void *argument);
 void App_Task(void *argument);
 
 osMessageQueueId_t TempQueue;
+osEventFlagsId_t msgFlags;
 
 static void BSP_SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_CommandTypeDef *Command);
 
@@ -185,6 +187,8 @@ int main(void)
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
   TempQueue = osMessageQueueNew(1, sizeof(float), NULL);
+  msgFlags =  osEventFlagsNew(NULL);
+
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
   /* USER CODE END 2 */
 

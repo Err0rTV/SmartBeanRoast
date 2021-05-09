@@ -1,5 +1,11 @@
+#include "cmsis_os.h"
+
 #include <gui/screen1_screen/Screen1View.hpp>
 #include <texts/TextKeysAndLanguages.hpp>
+
+#include "common.h"
+
+extern osEventFlagsId_t msgFlags;
 
 Screen1View::Screen1View()
 {
@@ -25,9 +31,11 @@ void Screen1View::updateTemp(float temp)
 void Screen1View::onButtonStart()
 {
     // Override and implement this function in Screen1
+	osEventFlagsSet(msgFlags, MSG_BUTTON_START);
 }
 
 void Screen1View::onButtonDevelop()
 {
     // Override and implement this function in Screen1
+	osEventFlagsSet(msgFlags, MSG_BUTTON_DEVELOP);
 }
