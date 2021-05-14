@@ -70,6 +70,7 @@ PG12.GPIOParameters=GPIO_Speed
 SH.FMC_A2.0=FMC_A2,12b-sda1
 STMicroelectronics.X-CUBE-TOUCHGFX.4.16.1.tgfx_display_interface=disp_ltdc
 SH.FMC_D15_DA15.ConfNb=1
+PE4.GPIO_Label=MAX6685 NCS
 PC9.Mode=I2C
 PE2.Signal=SPI4_SCK
 PF8.Mode=Full_Duplex_Master

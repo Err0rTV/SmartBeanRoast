@@ -58,6 +58,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define MAX6685_NCS_Pin GPIO_PIN_4
+#define MAX6685_NCS_GPIO_Port GPIOE
 #define Green_LED_Pin GPIO_PIN_13
 #define Green_LED_GPIO_Port GPIOG
 /* USER CODE BEGIN Private defines */
