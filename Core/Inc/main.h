@@ -62,7 +62,7 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define MAX6685_NCS_Pin GPIO_PIN_4
 #define MAX6685_NCS_GPIO_Port GPIOE
-#define SSR_enable_Pin GPIO_PIN_7
+#define SSR_enable_Pin GPIO_PIN_9
 #define SSR_enable_GPIO_Port GPIOA
 #define Green_LED_Pin GPIO_PIN_13
 #define Green_LED_GPIO_Port GPIOG
