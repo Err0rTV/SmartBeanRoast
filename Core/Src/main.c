@@ -1058,13 +1058,39 @@ void LCD_Delay(uint32_t Delay)
   HAL_Delay(Delay);
 }
 
+void setPWM(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period,
+uint16_t pulse)
+{
+ HAL_TIM_PWM_Stop(&timer, channel); // stop generation of pwm
+ TIM_OC_InitTypeDef sConfigOC;
+ timer.Init.Period = period; // set the period duration
+ HAL_TIM_PWM_Init(&timer); // reinititialise with new period value
+
+ sConfigOC.OCMode = TIM_OCMODE_PWM1;
+ sConfigOC.Pulse = pulse; // set the pulse duration
+ sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+ sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+ sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+ sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+ sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+
+ HAL_TIM_PWM_ConfigChannel(&timer, &sConfigOC, channel);
+ HAL_TIM_PWM_Start(&timer, channel); // start pwm generation
+}
+
 void App_Task(void *argument)
 {
   /* Infinite loop */
-	float temp = 0;
+  float temp = 0;
+
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+
   for(;;)
   {
     osDelay(500);
+
+    setPWM(htim1, TIM_CHANNEL_2, 65535, 55000);
+
     HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
 
     uint16_t readvalue;
