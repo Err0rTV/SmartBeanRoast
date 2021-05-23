@@ -1083,13 +1083,12 @@ void App_Task(void *argument)
   /* Infinite loop */
   float temp = 0;
 
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+	int heatOn = 0;
+	float ie = 0;
 
   for(;;)
   {
     osDelay(500);
-
-    setPWM(htim1, TIM_CHANNEL_2, 65535, 55000);
 
     HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
 
@@ -1111,13 +1110,53 @@ void App_Task(void *argument)
     {
     	temp = readvalue * 0.25;
     	int status = osMessageQueuePut(TempQueue, &temp, 0, 0);
+
+    	if(heatOn)
+    	{
+    		float consigne = 200.0;
+
+
+    	/*
+    	 * e -> 0 => f_pid -> 0
+    	 * e = 80 - 25 = 45
+    	 *
+    	 *
+    	 */
+    	const float Kp=6, Ki=0.006, Kd=0;
+
+    	float e = consigne - temp;
+    	float de = 0;
+
+    	ie += temp * .5;
+
+
+    	float f_pid = Kp * e + Ki * ie + Kd * de;
+
+    	float g = f_pid * 400;
+    	if (g < 0)
+    		g = 0;
+    	else if (g > 65535)
+    		g = 65535;
+
+    	setPWM(htim1, TIM_CHANNEL_2, 65535, (uint16_t)g);
+    	}
     }
 
     uint32_t flag = osEventFlagsWait(msgFlags, MSG_BUTTON_START, osFlagsWaitAny, 0);
     if(flag != osFlagsErrorResource)
     {
     	uint32_t f = flag;
-    	HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_2);
+//    	HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_2);
+    	heatOn = !heatOn;
+    	if(heatOn == 0)
+    	{
+    		ie = 0;
+    		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+    	}
+    	else
+    	{
+    		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+    	}
     }
 
     flag = osEventFlagsWait(msgFlags, MSG_BUTTON_DEVELOP, osFlagsWaitAny, 0);
@@ -1125,7 +1164,7 @@ void App_Task(void *argument)
     {
     	uint32_t f = flag;
     }
-    //temp += 1;
+
   }
 }
 
