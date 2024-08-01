@@ -25,6 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
 #include "Components/ili9341/ili9341.h"
 #include "common.h"
 /* USER CODE END Includes */
@@ -1157,6 +1158,17 @@ uint16_t pulse)
  HAL_TIM_PWM_Start(&timer, channel); // start pwm generation
 }
 
+int __io_putchar(int ch)
+{
+
+//	 HAL_UART_Transmit(&huart4, (uint8_t *)&ch, 1, 0xFFFF);
+//	uint8_t data = "T";
+	 uint8_t t = CDC_Transmit_HS((uint8_t *)&ch, 1);
+//	 ITM_SendChar(ch);
+	 HAL_Delay(1);
+	 return ch;
+}
+
 void App_Task(void *argument)
 {
   /* Infinite loop */
@@ -1187,7 +1199,7 @@ void App_Task(void *argument)
     }
     else
     {
-    	temp = readvalue * 0.25;
+    	printf("%f;%f;%f\r\n", (float)(current_tick - start_tick)*HAL_GetTickFreq()/1000, temp, temp2);
     	int status = osMessageQueuePut(TempQueue, &temp, 0, 0);
 
     	if(heatOn)
@@ -1217,6 +1229,7 @@ void App_Task(void *argument)
     	else if (g > 65535)
     		g = 65535;
 
+//    	printf("%f\r\n", 0.2857 * (current_tick - start_tick)*HAL_GetTickFreq()/1000 + 35);
     	setPWM(htim1, TIM_CHANNEL_2, 65535, (uint16_t)g);
     	}
     }
