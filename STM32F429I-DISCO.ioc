@@ -39,6 +39,7 @@ SH.FMC_D9_DA9.0=FMC_D9,sd-16b-d1
 NVIC.SVCall_IRQn=true\:0\:0\:false\:false\:false\:false\:false\:false
 PA4.Mode=RGB565
 PF7.Signal=SPI5_SCK
+VP_USB_DEVICE_VS_USB_DEVICE_CDC_HS.Signal=USB_DEVICE_VS_USB_DEVICE_CDC_HS
 NVIC.DMA2D_IRQn=true\:5\:0\:true\:false\:true\:true\:true\:true
 RCC.LCDTFTFreq_Value=6000000
 SH.FMC_SDNWE.0=FMC_SDNWE,12b-sda1
