@@ -78,6 +78,8 @@ SPI_HandleTypeDef hspi5;
 
 TIM_HandleTypeDef htim1;
 
+UART_HandleTypeDef huart4;
+
 SDRAM_HandleTypeDef hsdram1;
 
 /* Definitions for GUI_Task */
@@ -109,6 +111,7 @@ static void MX_DMA2D_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_SPI3_Init(void);
+static void MX_UART4_Init(void);
 void TouchGFX_Task(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -192,6 +195,7 @@ int main(void)
   MX_SPI4_Init();
   MX_TIM1_Init();
   MX_SPI3_Init();
+  MX_UART4_Init();
   MX_TouchGFX_Init();
   /* USER CODE BEGIN 2 */
   TempQueue = osMessageQueueNew(1, sizeof(float), NULL);
@@ -654,6 +658,39 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 2 */
   HAL_TIM_MspPostInit(&htim1);
+
+}
+
+/**
+  * @brief UART4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_UART4_Init(void)
+{
+
+  /* USER CODE BEGIN UART4_Init 0 */
+
+  /* USER CODE END UART4_Init 0 */
+
+  /* USER CODE BEGIN UART4_Init 1 */
+
+  /* USER CODE END UART4_Init 1 */
+  huart4.Instance = UART4;
+  huart4.Init.BaudRate = 115200;
+  huart4.Init.WordLength = UART_WORDLENGTH_8B;
+  huart4.Init.StopBits = UART_STOPBITS_1;
+  huart4.Init.Parity = UART_PARITY_NONE;
+  huart4.Init.Mode = UART_MODE_TX_RX;
+  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_HalfDuplex_Init(&huart4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN UART4_Init 2 */
+
+  /* USER CODE END UART4_Init 2 */
 
 }
 
