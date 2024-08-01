@@ -203,6 +203,7 @@ int main(void)
   msgFlags =  osEventFlagsNew(NULL);
 
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -769,7 +770,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(MAX6685_NCS_GPIO_Port, MAX6685_NCS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2|GPIO_PIN_12, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13, GPIO_PIN_RESET);
@@ -804,6 +805,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PC12 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Green_LED_Pin */
   GPIO_InitStruct.Pin = Green_LED_Pin;
@@ -1172,11 +1180,13 @@ int __io_putchar(int ch)
 void App_Task(void *argument)
 {
   /* Infinite loop */
-  float temp = 0;
+	  float temp = 0;
+	  float temp2 = 0;
 
 	int heatOn = 0;
 	float ie = 0;
 	  MX_USB_DEVICE_Init();
+		uint32_t start_tick = 0;
   for(;;)
   {
     osDelay(500);
@@ -1184,28 +1194,52 @@ void App_Task(void *argument)
     HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
 
     uint16_t readvalue;
+
     HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
     osDelay(1);
     HAL_StatusTypeDef hal_status = HAL_SPI_Receive(&hspi4, (uint8_t*) &readvalue, 1, 10);
+    osDelay(1);
     HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
+    int dumy = (readvalue >> 15) & 1;
+    int tinput = (readvalue >> 2) & 1;
+    int dstatus = (readvalue >> 1) & 1;
+//    printf("dumy: %d tinput: %d d_id: %d\r\n", dumy, tinput, dstatus);
     readvalue = readvalue >> 3;
+	temp = readvalue * 0.25;
+
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_RESET);
+    osDelay(1);
+    HAL_StatusTypeDef hal_status2 = HAL_SPI_Receive(&hspi3, (uint8_t*) &readvalue, 1, 10);
+    osDelay(1);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_SET);
+    int dumy2 = (readvalue >> 15) & 1;
+    int tinput2 = (readvalue >> 2) & 1;
+    int dstatus2 = (readvalue >> 1) & 1;
+//    printf("dumy: %d tinput: %d d_id: %d\r\n", dumy2, tinput2, dstatus2);
+    readvalue = readvalue >> 3;
+	temp2 = readvalue * 0.25;
+
+	uint32_t current_tick = HAL_GetTick();
+
 
     /* Check the communication status */
-    if(hal_status != HAL_OK)
+    if(hal_status != HAL_OK || hal_status2 != HAL_OK)
     {
       /* Re-Initialize the BUS */
     	temp = -1;
+    	temp2 = -1;
 //    	int status = osMessageQueuePut(TempQueue, &temp, 0, 0);
     }
     else
     {
     	printf("%f;%f;%f\r\n", (float)(current_tick - start_tick)*HAL_GetTickFreq()/1000, temp, temp2);
-    	int status = osMessageQueuePut(TempQueue, &temp, 0, 0);
+    	int status = osMessageQueuePut(TempQueue, &temp2, 0, 0);
 
     	if(heatOn)
     	{
+    		typedef struct { uint16_t time; float temp;} time_temp_t;
     		float consigne = 200.0;
-
+    		consigne = 0.2857 * (current_tick - start_tick)*HAL_GetTickFreq()/1000 + 25;
 
     	/*
     	 * e -> 0 => f_pid -> 0
@@ -1229,6 +1263,7 @@ void App_Task(void *argument)
     	else if (g > 65535)
     		g = 65535;
 
+    	// g = 65535 * 0.25;
 //    	printf("%f\r\n", 0.2857 * (current_tick - start_tick)*HAL_GetTickFreq()/1000 + 35);
     	setPWM(htim1, TIM_CHANNEL_2, 65535, (uint16_t)g);
     	}
@@ -1247,6 +1282,7 @@ void App_Task(void *argument)
     	}
     	else
     	{
+    		start_tick = HAL_GetTick();
     		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
     	}
     }
